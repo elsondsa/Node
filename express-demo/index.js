@@ -1,7 +1,9 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const app = express()
 const Joi = require('joi')
-app.use(express.json())
+
+app.use(bodyParser.json())
 
 const courses = [
     {
@@ -97,6 +99,115 @@ app.put('/api/courses/:id',(req,res) => {
     res.send(course)
 });
 
+app.post('/api/details', (req,res) => {
+
+    // const schema = {
+    //     name: Joi.string().min(3).required(),
+    //     password: Joi.string().min(8).required()
+    // }
+
+    // const result = Joi.validate(req.body, schema);
+    // if(result.error){
+    //     res.status(400).send(result.error.details[0].message);
+    // }
+
+    const course = {
+        name: req.body.name,
+        password: req.body.password
+    };
+    console.log(req.body);
+    console.log(req.body.name);
+    console.log(req.body.password);
+    res.send(course);
+});
+
+function validateCourse(course) {
+    const schema = {
+        name: Joi.string().min(3).required(),
+        password: Joi.string().min(8).required()
+    }
+    return Joi.validate(course, schema);
+}
+
+app.put('/api/courses/:id',(req,res) => {
+    const course = courses.find(c=> c.id === parseInt(req.params.id));
+    if(!course) {
+        
+    const cour = {
+        id: courses.length + 1,
+        name: req.body.name,
+        email: req.body.email
+    };
+    courses.push(cour);
+    res.send(cour);
+    return;
+    }
+    const { error } = validateCourse(req.body);
+    if(error){
+        res.status(400).send(error.details[0].message);
+    }
+    course.name = req.body.name;
+    course.email = req.body.email;
+    res.send(course)
+});
+app.delete('/api/courses/:id', (req,res) => { 
+     const course = courses.find(c=> c.id === parseInt(req.params.id));
+     if(!course) res.status(404).send('The course with given id is not found');
+     const index = courses.indexOf(course);
+     courses.splice(index,1);
+     res.send(course);
+});
+
+app.post('/api/courses', (req,res) => {
+
+    const schema = {
+        name: Joi.string().min(3).required(),
+        email: Joi.string().min(8).required()
+    }
+
+    const result = Joi.validate(req.body, schema);
+    if(result.error){
+        res.status(400).send(result.error.details[0].message);
+    }
+
+    const course = {
+        id: courses.length + 1,
+        name: req.body.name,
+        email: req.body.email
+    };
+    courses.push(course);
+    res.send(course);
+});
+
+function validateCourse(course) {
+    const schema = {
+        name: Joi.string().min(3).required(),
+        email: Joi.string().min(8).required()
+    }
+    return Joi.validate(course, schema);
+}
+
+app.put('/api/courses/:id',(req,res) => {
+    const course = courses.find(c=> c.id === parseInt(req.params.id));
+    if(!course) {
+        
+    const cour = {
+        id: courses.length + 1,
+        name: req.body.name,
+        email: req.body.email
+    };
+    courses.push(cour);
+    res.send(cour);
+    return;
+    }
+    const { error } = validateCourse(req.body);
+    if(error){
+        res.status(400).send(error.details[0].message);
+    }
+    course.name = req.body.name;
+    course.email = req.body.email;
+    res.send(course)
+});
 app.delete('/api/courses/:id', (req,res) => { 
      const course = courses.find(c=> c.id === parseInt(req.params.id));
      if(!course) res.status(404).send('The course with given id is not found');
